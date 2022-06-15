@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ article.title }}</h1>
+    <span>访问量：{{ article.article_views }}</span>
+    {% if user.is_authenticated %}
+        {% if article.author == user %}
+            <a href="{% url 'article_edit' article.id %}">编辑文章</a>-
+            <a class="delete-article" href="#" onclick="deleteArticle()">删除文章</a>
+        {% endif %}
+    {% endif %}
+    <hr>
+    <div>{{ article.content }}</div>
+    <hr>
+    <div>
+        <h2>评论</h2>
+        {% if user.is_authenticated %}
+            <form action="" method="post">
+                {% csrf_token %}
+                <label for="content"></label>
+                <textarea id="content" name="content" placeholder="发一条善意的评论"></textarea>
+                <button type="submit">发布</button>
+            </form>
+        {% else %}
+            <p>登陆后可以发表评论</p>
+        {% endif %}
+        {% for comment in comments %}
+            <div>{{ comment.commentator }}</div>
+            <div>{{ comment.content }}</div>
+            <div>{{ comment.created_date }}</div>
+            <hr>
+        {% empty %}
+            <p>还没有评论，快来发一条评论吧。</p>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+    function deleteArticle() {
+        let delete_article = document.querySelector('.delete-article');
+        let r = confirm('确认删除');
+        if (r===true){
+            delete_article.href = "{% url 'article_delete' article.id %}"
+        }
+        else {
+            delete_article.href = "#"
+        }
+    }
+    </script>
+{% endblock %}
